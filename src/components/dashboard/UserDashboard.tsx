@@ -15,7 +15,7 @@ export default function UserDashboard({ stats, isLoading }: UserDashboardProps) 
         return <DashboardSkeleton />;
     }
 
-    const totalUsers = stats.activeCount + stats.inactiveCount;
+    const totalUsers = stats.active + stats.inactive;
     if (totalUsers === 0) {
         return (
             <Card>
@@ -35,8 +35,8 @@ export default function UserDashboard({ stats, isLoading }: UserDashboardProps) 
     return (
         <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
             <ActiveUsersChart
-                activeCount={stats.activeCount}
-                inactiveCount={stats.inactiveCount}
+                activeCount={stats.active}
+                inactiveCount={stats.inactive}
             />
             {hasRoleData ? (
                 <RoleDistributionChart

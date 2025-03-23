@@ -36,8 +36,8 @@ export interface UserFormData {
 
 // Structure of statistical data for the Dashboard
 export interface UserStats {
-    activeCount: number;
-    inactiveCount: number;
+    active: number;
+    inactive: number;
     roleDistribution: {
         Admin: number;
         User: number;

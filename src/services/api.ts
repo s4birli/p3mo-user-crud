@@ -1,12 +1,12 @@
 import axios from 'axios';
 import { User, UserFormData, UserStats, Role } from '@/types';
 
-// API base URL
-const API_BASE_URL = 'http://localhost:5000/api';
+// Frontend için Next.js API routes (BFF)
+const BFF_API_URL = '/api';
 
-// Create Axios instance
-const api = axios.create({
-  baseURL: API_BASE_URL,
+// Frontend için axios instance - BFF üzerinden çağrı yapacak
+const bffApi = axios.create({
+  baseURL: BFF_API_URL,
   headers: {
     'Content-Type': 'application/json',
   },
@@ -26,24 +26,24 @@ const prepareUserForSubmission = (userData: UserFormData): Record<string, unknow
   };
 };
 
-// User API services
+// User API services - BFF üzerinden çağrı yapacak
 export const userService = {
   // Get all users
   getAllUsers: async (): Promise<User[]> => {
-    const response = await api.get<User[]>('/users');
+    const response = await bffApi.get<User[]>('/users');
     return response.data;
   },
 
   // Get user by ID
   getUserById: async (id: number): Promise<User> => {
-    const response = await api.get<User>(`/users/${id}`);
+    const response = await bffApi.get<User>(`/users/${id}`);
     return response.data;
   },
 
   // Create new user
   createUser: async (userData: UserFormData): Promise<User> => {
     const transformedData = prepareUserForSubmission(userData);
-    const response = await api.post<User>('/users', transformedData);
+    const response = await bffApi.post<User>('/users', transformedData);
     return response.data;
   },
 
@@ -61,13 +61,13 @@ export const userService = {
     if (userData.roleId !== undefined) updateData.roleId = userData.roleId;
     if (userData.country !== undefined) updateData.country = userData.country;
     
-    const response = await api.put<User>(`/users/${id}`, updateData);
+    const response = await bffApi.put<User>(`/users/${id}`, updateData);
     return response.data;
   },
 
   // Delete user
   deleteUser: async (id: number): Promise<void> => {
-    await api.delete(`/users/${id}`);
+    await bffApi.delete(`/users/${id}`);
   },
 };
 
@@ -75,42 +75,42 @@ export const userService = {
 export const roleService = {
   // Get all roles
   getAllRoles: async (): Promise<Role[]> => {
-    const response = await api.get<Role[]>('/roles');
+    const response = await bffApi.get<Role[]>('/roles');
     return response.data;
   },
 
   // Get role by ID
   getRoleById: async (id: number): Promise<Role> => {
-    const response = await api.get<Role>(`/roles/${id}`);
+    const response = await bffApi.get<Role>(`/roles/${id}`);
     return response.data;
   },
 
   // Create new role
   createRole: async (roleData: Omit<Role, 'id'>): Promise<Role> => {
-    const response = await api.post<Role>('/roles', roleData);
+    const response = await bffApi.post<Role>('/roles', roleData);
     return response.data;
   },
 
   // Update role
   updateRole: async (id: number, roleData: Partial<Omit<Role, 'id'>>): Promise<Role> => {
-    const response = await api.put<Role>(`/roles/${id}`, roleData);
+    const response = await bffApi.put<Role>(`/roles/${id}`, roleData);
     return response.data;
   },
 
   // Delete role
   deleteRole: async (id: number): Promise<void> => {
-    await api.delete(`/roles/${id}`);
+    await bffApi.delete(`/roles/${id}`);
   },
 };
 
 // PDF API services
 export const pdfService = {
-  // Generate user PDF (mocked)
+  // Generate user PDF
   generateUserPdf: async (id: number): Promise<Blob> => {
-    // This is a mock implementation that returns an empty PDF blob
-    // In a real app, this would make an API call
-    await new Promise(resolve => setTimeout(resolve, 800)); // Simulate API call delay
-    return new Blob(['PDF content for user ' + id], { type: 'application/pdf' });
+    const response = await bffApi.get(`/pdf/${id}`, {
+      responseType: 'blob'
+    });
+    return response.data;
   },
 };
 
@@ -120,15 +120,15 @@ export const statsService = {
   getUserStats: async (): Promise<UserStats> => {
     try {
       // Active/inactive statistics
-      const activeStatsResponse = await api.get('/stats/active');
+      const activeStatsResponse = await bffApi.get('/stats/active');
       const activeStats = activeStatsResponse.data;
 
       // Role distribution statistics
-      const roleDistResponse = await api.get('/stats/roles');
+      const roleDistResponse = await bffApi.get('/stats/roles');
       const roleDistribution = roleDistResponse.data;
 
       // Monthly registration statistics
-      const regStatsResponse = await api.get('/stats/registration');
+      const regStatsResponse = await bffApi.get('/stats/registration');
       const registrationStats = regStatsResponse.data;
 
       // Transform role distribution
@@ -151,15 +151,26 @@ export const statsService = {
         count: item.count
       }));
 
+      // Return combined stats
       return {
-        activeCount: activeStats.active,
-        inactiveCount: activeStats.inactive,
+        active: activeStats.active || 0,
+        inactive: activeStats.inactive || 0,
         roleDistribution: roleCounts,
-        monthlyRegistrations: monthlyRegs,
+        monthlyRegistrations: monthlyRegs
       };
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     } catch (error) {
-      throw error;
+      console.error('Error fetching user stats:', error);
+      // Return default empty stats on error
+      return {
+        active: 0,
+        inactive: 0,
+        roleDistribution: {
+          Admin: 0,
+          User: 0,
+          Guest: 0
+        },
+        monthlyRegistrations: []
+      };
     }
   }
 };

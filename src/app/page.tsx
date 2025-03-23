@@ -9,8 +9,8 @@ import { toast } from 'sonner';
 export default function Home() {
   const [isLoadingStats, setIsLoadingStats] = useState(true);
   const [stats, setStats] = useState<UserStats>({
-    activeCount: 0,
-    inactiveCount: 0,
+    active: 0,
+    inactive: 0,
     roleDistribution: { Admin: 0, User: 0, Guest: 0 },
     monthlyRegistrations: []
   });
