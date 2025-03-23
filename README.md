@@ -46,7 +46,7 @@ The .NET backend implementation is planned but not yet started.
    ```bash
    npm run dev
    ```
-4. Open [http://localhost:5500](http://localhost:5500) in your browser
+4. Open [http://localhost:3000](http://localhost:3000) in your browser
 
 ## Project Structure
 
