@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { User, UserFormData } from '@/types';
 import UserForm from '@/components/forms/UserForm';
 import { Button } from '@/components/ui/button';
@@ -8,82 +8,111 @@ import {
     DialogDescription,
     DialogHeader,
     DialogTitle,
-    DialogTrigger,
 } from '@/components/ui/dialog';
 import { toast } from 'sonner';
-import useApi from '@/hooks/useApi';
+import { userService } from '@/services/api';
+import { FormSkeleton } from '@/components/skeletons/FormSkeleton';
 
 interface UserFormDialogProps {
     user?: User;
+    open?: boolean;
+    onOpenChange?: (open: boolean) => void;
+    onUserAdded?: () => void;
     onSuccess?: () => void;
     trigger?: React.ReactNode;
 }
 
-export default function UserFormDialog({ user, onSuccess, trigger }: UserFormDialogProps) {
-    const [open, setOpen] = useState(false);
-    const [{ isLoading }, { post, upload }] = useApi<User>();
+export default function UserFormDialog({ 
+    user, 
+    open: controlledOpen, 
+    onOpenChange: setControlledOpen,
+    onUserAdded,
+    onSuccess, 
+    trigger 
+}: UserFormDialogProps) {
+    const [uncontrolledOpen, setUncontrolledOpen] = useState(false);
+    const [isSubmitting, setIsSubmitting] = useState(false);
+    const [isLoadingUser, setIsLoadingUser] = useState(false);
+    const [userData, setUserData] = useState<User | undefined>(user);
+    
+    // Use controlled state if provided, otherwise use internal state
+    const open = controlledOpen !== undefined ? controlledOpen : uncontrolledOpen;
+    const setOpen = setControlledOpen || setUncontrolledOpen;
+
+    // If a user ID is provided but not the full user object, fetch the user data
+    useEffect(() => {
+        if (user?.id && !userData) {
+            const fetchUserData = async () => {
+                setIsLoadingUser(true);
+                try {
+                    const data = await userService.getUserById(user.id);
+                    setUserData(data);
+                } catch (error) {
+                    toast.error('Failed to load user data');
+                } finally {
+                    setIsLoadingUser(false);
+                }
+            };
+            fetchUserData();
+        } else {
+            setUserData(user);
+        }
+    }, [user]);
 
     const handleSubmit = async (data: UserFormData) => {
         try {
-            if (data.avatarFile) {
-                // If there's a file, use FormData and the upload method
-                const formData = new FormData();
-
-                // Add all user data to form
-                Object.entries(data).forEach(([key, value]) => {
-                    if (key !== 'avatarFile' && value !== undefined) {
-                        if (typeof value === 'boolean') {
-                            formData.append(key, value.toString());
-                        } else {
-                            formData.append(key, value as string);
-                        }
-                    }
-                });
-
-                // Add the file
-                if (data.avatarFile) {
-                    formData.append('avatarFile', data.avatarFile);
-                }
-
-                await upload('/api/users', formData);
+            setIsSubmitting(true);
+            
+            if (userData) {
+                // Update existing user
+                await userService.updateUser(userData.id, data);
+                toast.success('User updated successfully!');
             } else {
-                // Regular JSON submission without file
-                await post('/api/users', data);
+                // Create new user
+                await userService.createUser(data);
+                toast.success('New user created successfully!');
             }
-
-            toast.success('User saved successfully!');
+            
             setOpen(false);
 
+            // Call both callback handlers if provided
+            if (onUserAdded) {
+                onUserAdded();
+            }
+            
             if (onSuccess) {
                 onSuccess();
             }
         } catch (error) {
-            console.error('Error saving user:', error);
-            toast.error('Failed to save user. Please try again.');
+            toast.error(`Failed to ${user?.id ? 'update' : 'create'} user`);
+        } finally {
+            setIsSubmitting(false);
         }
     };
 
-    const title = user ? 'Edit User' : 'Add New User';
-    const description = user
-        ? 'Update the user information below.'
-        : 'Fill in the user details below to create a new user.';
+    const title = userData ? 'Edit User' : 'Add New User';
+    const description = userData
+        ? 'Update user information below.'
+        : 'Fill in the information below to create a new user.';
 
     return (
         <Dialog open={open} onOpenChange={setOpen}>
-            <DialogTrigger asChild>
-                {trigger || <Button>Add User</Button>}
-            </DialogTrigger>
-            <DialogContent className="sm:max-w-[675px]">
+           
+            <DialogContent className="sm:max-w-[750px]">
                 <DialogHeader>
                     <DialogTitle>{title}</DialogTitle>
                     <DialogDescription>{description}</DialogDescription>
                 </DialogHeader>
                 <div className="py-4">
-                    <UserForm
-                        defaultValues={user}
-                        isSubmitting={isLoading}
-                        onSubmit={handleSubmit}
-                    />
+                    {isLoadingUser ? (
+                        <FormSkeleton />
+                    ) : (
+                        <UserForm
+                            defaultValues={userData}
+                            isSubmitting={isSubmitting}
+                            onSubmit={handleSubmit}
+                        />
+                    )}
                 </div>
             </DialogContent>
         </Dialog>

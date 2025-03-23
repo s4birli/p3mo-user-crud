@@ -11,15 +11,16 @@ import {
 } from '@/components/ui/table';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
-import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Trash2, User as UserIcon } from 'lucide-react';
 
 interface UserTableProps {
     users: User[];
-    isLoading: boolean;
+    isLoading?: boolean;
+    onDeleteUser?: (id: number) => Promise<void>;
 }
 
-export default function UserTable({ users, isLoading }: UserTableProps) {
+export default function UserTable({ users, onDeleteUser }: UserTableProps) {
     const router = useRouter();
     const [searchTerm, setSearchTerm] = useState('');
     const [roleFilter, setRoleFilter] = useState<UserRole | 'All'>('All');
@@ -89,14 +90,15 @@ export default function UserTable({ users, isLoading }: UserTableProps) {
         router.push(`/user/${userId}`);
     };
 
-    // Loading state
-    if (isLoading) {
-        return (
-            <div className="rounded-md border">
-                <div className="h-24 animate-pulse bg-muted" />
-            </div>
-        );
-    }
+    // Handle delete button click
+    const handleDeleteClick = (e: React.MouseEvent, userId: number) => {
+        e.stopPropagation(); // Prevent row click event
+        if (onDeleteUser) {
+            if (window.confirm('Are you sure you want to delete this user?')) {
+                onDeleteUser(userId);
+            }
+        }
+    };
 
     return (
         <div className="space-y-4">
@@ -168,12 +170,13 @@ export default function UserTable({ users, isLoading }: UserTableProps) {
                                     Status {getSortDirectionIndicator('isActive')}
                                 </Button>
                             </TableHead>
+                            {onDeleteUser && <TableHead className="w-[60px]">Actions</TableHead>}
                         </TableRow>
                     </TableHeader>
                     <TableBody>
                         {sortedUsers.length === 0 ? (
                             <TableRow>
-                                <TableCell colSpan={5} className="h-24 text-center">
+                                <TableCell colSpan={onDeleteUser ? 6 : 5} className="h-24 text-center">
                                     No users found.
                                 </TableCell>
                             </TableRow>
@@ -186,13 +189,6 @@ export default function UserTable({ users, isLoading }: UserTableProps) {
                                 >
                                     <TableCell>
                                         <div className="flex items-center gap-3">
-                                            <Avatar>
-                                                <AvatarImage src={user.avatarUrl} alt={`${user.firstName} ${user.lastName}`} />
-                                                <AvatarFallback>
-                                                    {user.firstName.charAt(0)}
-                                                    {user.lastName.charAt(0)}
-                                                </AvatarFallback>
-                                            </Avatar>
                                             <div>
                                                 <div className="font-medium">
                                                     {user.firstName} {user.middleName ? `${user.middleName.charAt(0)}. ` : ''}
@@ -224,6 +220,18 @@ export default function UserTable({ users, isLoading }: UserTableProps) {
                                             {user.isActive ? 'Active' : 'Inactive'}
                                         </div>
                                     </TableCell>
+                                    {onDeleteUser && (
+                                        <TableCell>
+                                            <Button
+                                                variant="ghost"
+                                                size="icon"
+                                                onClick={(e) => handleDeleteClick(e, user.id)}
+                                                className="text-red-500 hover:text-red-700 hover:bg-red-50"
+                                            >
+                                                <Trash2 className="h-4 w-4" />
+                                            </Button>
+                                        </TableCell>
+                                    )}
                                 </TableRow>
                             ))
                         )}

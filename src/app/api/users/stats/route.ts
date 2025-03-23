@@ -7,18 +7,11 @@ import { mockUsers } from "../route";
 
 export async function GET() {
     try {
-        // In a real application, this would call a backend API
-        // const response = await fetch('https://your-backend.com/api/users/stats');
-        // const stats = await response.json();
-
-        // Instead, we'll calculate stats from our mock data
-        const stats: UserStats = calculateUserStats(mockUsers);
-
+        const stats = calculateUserStats(mockUsers);
         return NextResponse.json(stats);
     } catch (error) {
-        console.error('Error fetching user stats:', error);
         return NextResponse.json(
-            { message: 'Error fetching user stats' },
+            { message: "Error fetching user stats" },
             { status: 500 }
         );
     }

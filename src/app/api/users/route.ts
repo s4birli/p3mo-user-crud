@@ -10,10 +10,10 @@ export const mockUsers: User[] = [
         email: "john.doe@example.com",
         dateOfBirth: "1990-01-15",
         role: "Admin",
+        roleId: 1,
         isActive: true,
         country: "United States",
         createdAt: "2023-01-10T12:00:00Z",
-        avatarUrl: "https://ui-avatars.com/api/?name=John+Doe",
     },
     {
         id: 2,
@@ -23,178 +23,167 @@ export const mockUsers: User[] = [
         email: "jane.smith@example.com",
         dateOfBirth: "1992-05-20",
         role: "User",
+        roleId: 2,
         isActive: true,
-        country: "Canada",
+        country: "United Kingdom",
         createdAt: "2023-02-15T10:30:00Z",
-        avatarUrl: "https://ui-avatars.com/api/?name=Jane+Smith",
     },
     {
         id: 3,
         firstName: "Michael",
         lastName: "Johnson",
-        email: "michael.johnson@example.com",
-        dateOfBirth: "1985-11-08",
-        role: "Guest",
+        email: "michael.j@example.com",
+        dateOfBirth: "1985-11-10",
+        role: "User",
+        roleId: 2,
         isActive: false,
-        country: "United Kingdom",
-        createdAt: "2023-03-05T14:45:00Z",
+        country: "Canada",
+        createdAt: "2023-03-20T09:15:00Z",
     },
     {
         id: 4,
-        firstName: "Emily",
-        lastName: "Brown",
-        email: "emily.brown@example.com",
-        dateOfBirth: "1988-07-12",
-        role: "User",
+        firstName: "Sarah",
+        lastName: "Williams",
+        email: "sarah.w@example.com",
+        dateOfBirth: "1995-07-22",
+        role: "Guest",
+        roleId: 3,
         isActive: true,
         country: "Australia",
-        createdAt: "2023-04-20T09:15:00Z",
-        avatarUrl: "https://ui-avatars.com/api/?name=Emily+Brown",
+        createdAt: "2023-04-05T14:45:00Z",
     },
     {
         id: 5,
         firstName: "David",
-        lastName: "Wilson",
-        email: "david.wilson@example.com",
-        dateOfBirth: "1995-03-25",
-        role: "User",
+        middleName: "Robert",
+        lastName: "Brown",
+        email: "david.brown@example.com",
+        dateOfBirth: "1988-09-30",
+        role: "Admin",
+        roleId: 1,
         isActive: true,
         country: "Germany",
-        createdAt: "2023-05-12T16:20:00Z",
+        createdAt: "2023-05-12T11:20:00Z",
     },
     {
         id: 6,
-        firstName: "Sarah",
-        middleName: "Elizabeth",
-        lastName: "Martinez",
-        email: "sarah.martinez@example.com",
-        dateOfBirth: "1991-09-30",
-        role: "Admin",
+        firstName: "Emily",
+        lastName: "Davis",
+        email: "emily.d@example.com",
+        dateOfBirth: "1993-03-15",
+        role: "User",
+        roleId: 2,
         isActive: true,
-        country: "Spain",
-        createdAt: "2023-06-08T11:10:00Z",
-        avatarUrl: "https://ui-avatars.com/api/?name=Sarah+Martinez",
+        country: "France",
+        createdAt: "2023-06-22T13:10:00Z",
     },
     {
         id: 7,
-        firstName: "Robert",
-        lastName: "Anderson",
-        email: "robert.anderson@example.com",
-        dateOfBirth: "1987-12-05",
+        firstName: "James",
+        lastName: "Wilson",
+        email: "james.w@example.com",
+        dateOfBirth: "1991-12-05",
         role: "Guest",
+        roleId: 3,
         isActive: false,
-        country: "France",
-        createdAt: "2023-07-17T13:40:00Z",
+        country: "Spain",
+        createdAt: "2023-07-30T08:45:00Z",
     },
     {
         id: 8,
-        firstName: "Lisa",
-        lastName: "Thomas",
-        email: "lisa.thomas@example.com",
-        dateOfBirth: "1993-08-18",
+        firstName: "Olivia",
+        middleName: "Grace",
+        lastName: "Taylor",
+        email: "olivia.t@example.com",
+        dateOfBirth: "1994-08-17",
         role: "User",
+        roleId: 2,
         isActive: true,
         country: "Italy",
-        createdAt: "2023-08-22T08:55:00Z",
-        avatarUrl: "https://ui-avatars.com/api/?name=Lisa+Thomas",
+        createdAt: "2023-08-10T15:30:00Z",
     },
     {
         id: 9,
-        firstName: "James",
-        lastName: "Jackson",
-        email: "james.jackson@example.com",
-        dateOfBirth: "1986-04-10",
-        role: "User",
+        firstName: "Daniel",
+        lastName: "Anderson",
+        email: "daniel.a@example.com",
+        dateOfBirth: "1987-04-25",
+        role: "Admin",
+        roleId: 1,
         isActive: true,
-        country: "Netherlands",
-        createdAt: "2023-09-14T15:30:00Z",
+        country: "Japan",
+        createdAt: "2023-09-18T10:00:00Z",
     },
     {
         id: 10,
-        firstName: "Jessica",
-        middleName: "Ann",
-        lastName: "White",
-        email: "jessica.white@example.com",
-        dateOfBirth: "1994-06-22",
-        role: "Guest",
-        isActive: false,
-        country: "Sweden",
-        createdAt: "2023-10-05T10:15:00Z",
-        avatarUrl: "https://ui-avatars.com/api/?name=Jessica+White",
+        firstName: "Sophia",
+        lastName: "Martinez",
+        email: "sophia.m@example.com",
+        dateOfBirth: "1996-02-10",
+        role: "User",
+        roleId: 2,
+        isActive: true,
+        country: "Brazil",
+        createdAt: "2023-10-25T12:15:00Z",
     },
 ];
 
-export async function GET() {
-    // In a real application, this would fetch from a backend API
-    // const response = await fetch('https://your-backend.com/api/users');
-    // const users = await response.json();
+// Helper to generate an ID for new users
+let nextUserId = mockUsers.length + 1;
 
+export async function GET() {
     return NextResponse.json(mockUsers);
 }
 
 export async function POST(request: NextRequest) {
     try {
-        const formData = await request.formData();
-
-        // Extract user data from form
-        const firstName = formData.get('firstName') as string;
-        const middleName = formData.get('middleName') as string || undefined;
-        const lastName = formData.get('lastName') as string;
-        const email = formData.get('email') as string;
-        const dateOfBirth = formData.get('dateOfBirth') as string;
-        const role = formData.get('role') as 'Admin' | 'User' | 'Guest';
-        const isActive = formData.get('isActive') === 'true';
-        const country = formData.get('country') as string;
-
-        // Handle file upload
-        const avatarFile = formData.get('avatarFile') as File | null;
-        let avatarUrl = undefined;
-
-        if (avatarFile) {
-            // In a real application, you would upload to a storage service
-            // and get back a URL. For this demo, we'll use UI Avatars
-            avatarUrl = `https://ui-avatars.com/api/?name=${firstName}+${lastName}`;
-
-            // Example of how you would handle this with a real backend:
-            // const backendResponse = await fetch('https://your-backend.com/api/upload', {
-            //   method: 'POST',
-            //   body: formData
-            // });
-            // const result = await backendResponse.json();
-            // avatarUrl = result.avatarUrl;
+        const body = await request.json();
+        
+        // Basic validation
+        if (!body.firstName || !body.lastName || !body.email) {
+            return NextResponse.json(
+                { message: "Missing required fields" },
+                { status: 400 }
+            );
         }
 
-        // Create new user
+        // Create new user with incremented ID
         const newUser: User = {
-            id: mockUsers.length + 1,
-            firstName,
-            middleName,
-            lastName,
-            email,
-            dateOfBirth,
-            role,
-            isActive,
-            country,
+            id: nextUserId++,
+            firstName: body.firstName,
+            middleName: body.middleName || undefined,
+            lastName: body.lastName,
+            email: body.email,
+            dateOfBirth: body.dateOfBirth,
+            role: getRoleName(body.roleId),
+            roleId: body.roleId,
+            isActive: body.isActive ?? true,
+            country: body.country,
             createdAt: new Date().toISOString(),
-            avatarUrl,
         };
 
-        // In a real application, you would send the data to the backend
-        // const response = await fetch('https://your-backend.com/api/users', {
-        //   method: 'POST',
-        //   headers: { 'Content-Type': 'application/json' },
-        //   body: JSON.stringify(newUser)
-        // });
-
-        // For this demo, we'll just add to our mock data
+        // Add to mock database
         mockUsers.push(newUser);
 
         return NextResponse.json(newUser, { status: 201 });
     } catch (error) {
-        console.error('Error creating user:', error);
         return NextResponse.json(
             { message: 'Error creating user' },
             { status: 500 }
         );
+    }
+}
+
+// Helper function to get role name from ID
+function getRoleName(roleId: number): "Admin" | "User" | "Guest" {
+    switch (roleId) {
+        case 1:
+            return "Admin";
+        case 2:
+            return "User";
+        case 3:
+            return "Guest";
+        default:
+            return "User"; // Default role
     }
 } 

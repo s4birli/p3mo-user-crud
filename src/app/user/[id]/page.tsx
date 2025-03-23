@@ -7,46 +7,8 @@ import { User } from '@/types';
 import UserDetail from '@/components/users/UserDetail';
 import { Button } from '@/components/ui/button';
 import { toast } from 'sonner';
-
-// Mock users data for demo
-const dummyUsers: User[] = [
-    {
-        id: 1,
-        firstName: "John",
-        lastName: "Doe",
-        email: "john.doe@example.com",
-        dateOfBirth: "1990-01-15",
-        role: "Admin",
-        isActive: true,
-        country: "United States",
-        createdAt: "2023-01-10T12:00:00Z",
-        avatarUrl: "https://ui-avatars.com/api/?name=John+Doe",
-    },
-    {
-        id: 2,
-        firstName: "Jane",
-        middleName: "Marie",
-        lastName: "Smith",
-        email: "jane.smith@example.com",
-        dateOfBirth: "1992-05-20",
-        role: "User",
-        isActive: true,
-        country: "Canada",
-        createdAt: "2023-02-15T10:30:00Z",
-        avatarUrl: "https://ui-avatars.com/api/?name=Jane+Smith",
-    },
-    {
-        id: 3,
-        firstName: "Michael",
-        lastName: "Johnson",
-        email: "michael.johnson@example.com",
-        dateOfBirth: "1985-11-08",
-        role: "Guest",
-        isActive: false,
-        country: "United Kingdom",
-        createdAt: "2023-03-05T14:45:00Z",
-    }
-];
+import { userService } from '@/services/api';
+import { UserDetailsSkeleton } from '@/components/skeletons/UserDetailsSkeleton';
 
 export default function UserDetailPage() {
     const router = useRouter();
@@ -55,26 +17,27 @@ export default function UserDetailPage() {
 
     const [isLoading, setIsLoading] = useState(true);
     const [user, setUser] = useState<User | null>(null);
-    const [error, setError] = useState<Error | null>(null);
+    const [hasError, setHasError] = useState(false);
 
-    // Load user data from dummy data
-    useEffect(() => {
+    // Function to fetch user data
+    const fetchUserData = async () => {
         if (!userId) return;
+        
+        try {
+            setIsLoading(true);
+            const userData = await userService.getUserById(userId);
+            setUser(userData);
+        } catch (error) {
+            toast.error("Failed to load user details. Please try refreshing the page.");
+            setHasError(true);
+        } finally {
+            setIsLoading(false);
+        }
+    };
 
-        // Simulate API loading delay
-        const timer = setTimeout(() => {
-            const foundUser = dummyUsers.find(u => u.id === userId);
-
-            if (foundUser) {
-                setUser(foundUser);
-                setIsLoading(false);
-            } else {
-                setError(new Error("User not found"));
-                setIsLoading(false);
-            }
-        }, 1000);
-
-        return () => clearTimeout(timer);
+    // Load user data from the API on initial render
+    useEffect(() => {
+        fetchUserData();
     }, [userId]);
 
     // If user ID is invalid, redirect to users page
@@ -84,9 +47,9 @@ export default function UserDetailPage() {
         }
     }, [userId, router]);
 
-    // Handle PDF generation separately for demo
-    const handlePrintClick = () => {
-        toast.success("PDF generation would happen in a real app!");
+    // Handle refreshing user data after an update
+    const handleUserUpdated = async () => {
+        await fetchUserData();
     };
 
     if (isLoading) {
@@ -98,12 +61,12 @@ export default function UserDetailPage() {
                         <Button variant="outline">Back to Users</Button>
                     </Link>
                 </div>
-                <div className="h-[500px] rounded-lg bg-muted animate-pulse"></div>
+                <UserDetailsSkeleton />
             </div>
         );
     }
 
-    if (error || !user) {
+    if (hasError || !user) {
         return (
             <div className="space-y-8">
                 <div className="flex items-center justify-between">
@@ -135,7 +98,10 @@ export default function UserDetailPage() {
                     <Button variant="outline">Back to Users</Button>
                 </Link>
             </div>
-            <UserDetail user={user} />
+            <UserDetail 
+                user={user} 
+                onUserUpdated={handleUserUpdated}
+            />
         </div>
     );
 } 

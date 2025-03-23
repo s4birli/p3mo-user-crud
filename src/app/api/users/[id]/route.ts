@@ -1,110 +1,104 @@
 import { NextRequest, NextResponse } from "next/server";
-import { mockUsers } from "../route";
+import { mockUsers } from "../../users/route";
+import { User } from "@/types";
 
-interface RouteParams {
-    params: {
-        id: string;
-    };
-}
-
-export async function GET(request: NextRequest, { params }: RouteParams) {
+export async function GET(
+    request: NextRequest,
+    { params }: { params: { id: string } }
+) {
     try {
-        const userId = parseInt(params.id);
-
-        // In a real application, this would call a backend API
-        // const response = await fetch(`https://your-backend.com/api/users/${userId}`);
-        // const user = await response.json();
-
-        // Instead, we'll find the user in our mock data
-        const user = mockUsers.find(user => user.id === userId);
+        const id = parseInt(params.id);
+        const user = mockUsers.find(u => u.id === id);
 
         if (!user) {
             return NextResponse.json(
-                { message: 'User not found' },
+                { message: "User not found" },
                 { status: 404 }
             );
         }
 
         return NextResponse.json(user);
     } catch (error) {
-        console.error('Error fetching user:', error);
         return NextResponse.json(
-            { message: 'Error fetching user' },
+            { message: "Error fetching user" },
             { status: 500 }
         );
     }
 }
 
-export async function PUT(request: NextRequest, { params }: RouteParams) {
+export async function PUT(
+    request: NextRequest,
+    { params }: { params: { id: string } }
+) {
     try {
-        const userId = parseInt(params.id);
+        const id = parseInt(params.id);
         const userData = await request.json();
-
-        // In a real application, this would call a backend API
-        // const response = await fetch(`https://your-backend.com/api/users/${userId}`, {
-        //   method: 'PUT',
-        //   headers: { 'Content-Type': 'application/json' },
-        //   body: JSON.stringify(userData)
-        // });
-        // const updatedUser = await response.json();
-
-        // Instead, we'll update the user in our mock data
-        const userIndex = mockUsers.findIndex(user => user.id === userId);
+        const userIndex = mockUsers.findIndex(u => u.id === id);
 
         if (userIndex === -1) {
             return NextResponse.json(
-                { message: 'User not found' },
+                { message: "User not found" },
                 { status: 404 }
             );
         }
 
-        // Update user data, preserving the ID
-        mockUsers[userIndex] = {
-            ...mockUsers[userIndex],
+        // Update user properties
+        const user = mockUsers[userIndex];
+        const updatedUser: User = {
+            ...user,
             ...userData,
-            id: userId // Ensure ID remains the same
+            id: user.id,
+            role: userData.roleId ? getRoleName(userData.roleId) : user.role,
+            updatedAt: new Date().toISOString()
         };
 
-        return NextResponse.json(mockUsers[userIndex]);
+        mockUsers[userIndex] = updatedUser;
+
+        return NextResponse.json(updatedUser);
     } catch (error) {
-        console.error('Error updating user:', error);
         return NextResponse.json(
-            { message: 'Error updating user' },
+            { message: "Error updating user" },
             { status: 500 }
         );
     }
 }
 
-export async function DELETE(request: NextRequest, { params }: RouteParams) {
+export async function DELETE(
+    request: NextRequest,
+    { params }: { params: { id: string } }
+) {
     try {
-        const userId = parseInt(params.id);
-
-        // In a real application, this would call a backend API
-        // const response = await fetch(`https://your-backend.com/api/users/${userId}`, {
-        //   method: 'DELETE'
-        // });
-
-        // Instead, we'll remove the user from our mock data
-        const userIndex = mockUsers.findIndex(user => user.id === userId);
+        const id = parseInt(params.id);
+        const userIndex = mockUsers.findIndex(u => u.id === id);
 
         if (userIndex === -1) {
             return NextResponse.json(
-                { message: 'User not found' },
+                { message: "User not found" },
                 { status: 404 }
             );
         }
 
-        const deletedUser = mockUsers[userIndex];
         mockUsers.splice(userIndex, 1);
 
-        return NextResponse.json(
-            { message: 'User deleted successfully', user: deletedUser }
-        );
+        return new NextResponse(null, { status: 204 });
     } catch (error) {
-        console.error('Error deleting user:', error);
         return NextResponse.json(
-            { message: 'Error deleting user' },
+            { message: "Error deleting user" },
             { status: 500 }
         );
+    }
+}
+
+// Helper function to get role name from ID
+function getRoleName(roleId: number): "Admin" | "User" | "Guest" {
+    switch (roleId) {
+        case 1:
+            return "Admin";
+        case 2:
+            return "User";
+        case 3:
+            return "Guest";
+        default:
+            return "User"; // Default role
     }
 } 
