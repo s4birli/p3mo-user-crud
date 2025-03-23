@@ -3,9 +3,8 @@ import { User } from '@/types';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { toast } from 'sonner';
-import { pdfService } from '@/services/api';
 import UserFormDialog from '@/components/users/UserFormDialog';
-import { Pencil, Printer, User as UserIcon } from 'lucide-react';
+import { Pencil, Printer } from 'lucide-react';
 import { Loading } from '@/components/ui/loading';
 
 interface UserDetailProps {
@@ -21,22 +20,51 @@ export default function UserDetail({ user, onUserUpdated }: UserDetailProps) {
         try {
             setIsGeneratingPdf(true);
             
-            const pdfBlob = await pdfService.generateUserPdf(user.id);
+            // PDF dosyasını API'den al
+            const response = await fetch(`http://localhost:5000/api/Pdf/${user.id}`);
             
-            const url = window.URL.createObjectURL(pdfBlob);
-            const link = document.createElement('a');
-            link.href = url;
-            link.setAttribute('download', `user-${user.id}.pdf`);
-            document.body.appendChild(link);
+            // Hata durumunu kontrol et
+            if (!response.ok) {
+                throw new Error(`Error: ${response.status}`);
+            }
             
-            link.click();
+            // Yanıtı blob olarak al
+            const blob = await response.blob();
             
-            link.parentNode?.removeChild(link);
+            // Blob'dan URL oluştur
+            const url = window.URL.createObjectURL(blob);
+            
+            // Gizli bir a elementi oluştur
+            const a = document.createElement('a');
+            a.style.display = 'none';
+            a.href = url;
+            
+            // Dosya adını belirleme
+            // Content-Disposition header'dan dosya adını almaya çalış
+            const contentDisposition = response.headers.get('content-disposition');
+            let filename = `user-${user.id}.pdf`;
+            
+            if (contentDisposition) {
+                const filenameMatch = contentDisposition.match(/filename[^;=\n]*=((['"]).*?\2|[^;\n]*)/);
+                if (filenameMatch && filenameMatch[1]) {
+                    filename = filenameMatch[1].replace(/['"]/g, '');
+                }
+            }
+            
+            a.download = filename;
+            document.body.appendChild(a);
+            
+            // İndirme işlemini başlat
+            a.click();
+            
+            // Temizlik yap
             window.URL.revokeObjectURL(url);
+            document.body.removeChild(a);
             
-            toast.success('PDF downloaded successfully');
+            toast.success('PDF indirme işlemi başarıyla tamamlandı');
         } catch (error) {
-            toast.error('Failed to generate PDF. Please try again later.');
+            console.error('PDF indirme hatası:', error);
+            toast.error('PDF indirilemedi. Lütfen daha sonra tekrar deneyin.');
         } finally {
             setIsGeneratingPdf(false);
         }
