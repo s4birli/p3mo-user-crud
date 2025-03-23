@@ -69,7 +69,7 @@ export default function RoleDistributionChart({ roleDistribution }: RoleDistribu
                     color: '#f59e0b', // Yellow
                 }
             ]
-        } as any]
+        } as Highcharts.SeriesOptionsType]
     };
 
     // Update chart on window resize

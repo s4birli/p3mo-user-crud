@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { userSchema } from '@/lib/validations';
-import { UserFormData, UserRole, User, Role } from '@/types';
+import { UserFormData, Role } from '@/types';
 import { Button } from '@/components/ui/button';
 import {
     Form,
@@ -18,7 +18,7 @@ import { Calendar } from '@/components/ui/calendar';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Switch } from '@/components/ui/switch';
-import { format, parse } from 'date-fns';
+import { format } from 'date-fns';
 import { cn } from '@/lib/utils';
 import { roleService } from '@/services/api';
 import { toast } from 'sonner';
@@ -57,7 +57,7 @@ export default function UserForm({
                 setIsLoadingRoles(true);
                 const rolesData = await roleService.getAllRoles();
                 setRoles(rolesData);
-            } catch (error) {
+            } catch {
                 toast.error("Failed to load role data. Please try refreshing the page.");
                 setRoles([]);
             } finally {

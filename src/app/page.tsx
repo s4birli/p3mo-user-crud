@@ -22,7 +22,7 @@ export default function Home() {
         setIsLoadingStats(true);
         const statsData = await statsService.getUserStats();
         setStats(statsData);
-      } catch (error) {
+      } catch {
         toast.error("Statistics could not be loaded. Please try again later.");
       } finally {
         setIsLoadingStats(false);

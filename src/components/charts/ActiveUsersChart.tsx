@@ -56,7 +56,7 @@ export default function ActiveUsersChart({ activeCount, inactiveCount }: ActiveU
                     color: '#ef4444', // Red
                 }
             ]
-        } as any]
+        } as Highcharts.SeriesOptionsType]
     };
 
     // Update chart on window resize

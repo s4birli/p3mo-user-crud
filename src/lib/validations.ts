@@ -1,5 +1,4 @@
 import { z } from 'zod';
-import { UserRole } from '@/types';
 
 export const userSchema = z.object({
     email: z.string().email("Please enter a valid email address"),

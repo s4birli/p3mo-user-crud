@@ -1,7 +1,6 @@
 import { useState, useEffect } from 'react';
 import { User, UserFormData } from '@/types';
 import UserForm from '@/components/forms/UserForm';
-import { Button } from '@/components/ui/button';
 import {
     Dialog,
     DialogContent,
@@ -47,6 +46,7 @@ export default function UserFormDialog({
                 try {
                     const data = await userService.getUserById(user.id);
                     setUserData(data);
+                // eslint-disable-next-line @typescript-eslint/no-unused-vars
                 } catch (error) {
                     toast.error('Failed to load user data');
                 } finally {
@@ -57,7 +57,7 @@ export default function UserFormDialog({
         } else {
             setUserData(user);
         }
-    }, [user]);
+    }, [user, userData]);
 
     const handleSubmit = async (data: UserFormData) => {
         try {
@@ -83,8 +83,9 @@ export default function UserFormDialog({
             if (onSuccess) {
                 onSuccess();
             }
+        // eslint-disable-next-line @typescript-eslint/no-unused-vars
         } catch (error) {
-            toast.error(`Failed to ${user?.id ? 'update' : 'create'} user`);
+            toast.error(`Failed to ${userData?.id ? 'update' : 'create'} user`);
         } finally {
             setIsSubmitting(false);
         }
@@ -97,7 +98,7 @@ export default function UserFormDialog({
 
     return (
         <Dialog open={open} onOpenChange={setOpen}>
-           
+            {trigger}
             <DialogContent className="sm:max-w-[750px]">
                 <DialogHeader>
                     <DialogTitle>{title}</DialogTitle>

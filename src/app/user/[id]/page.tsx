@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useCallback } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { User } from '@/types';
@@ -20,25 +20,26 @@ export default function UserDetailPage() {
     const [hasError, setHasError] = useState(false);
 
     // Function to fetch user data
-    const fetchUserData = async () => {
+    const fetchUserData = useCallback(async () => {
         if (!userId) return;
         
         try {
             setIsLoading(true);
             const userData = await userService.getUserById(userId);
             setUser(userData);
+        // eslint-disable-next-line @typescript-eslint/no-unused-vars
         } catch (error) {
             toast.error("Failed to load user details. Please try refreshing the page.");
             setHasError(true);
         } finally {
             setIsLoading(false);
         }
-    };
+    }, [userId]);
 
     // Load user data from the API on initial render
     useEffect(() => {
         fetchUserData();
-    }, [userId]);
+    }, [fetchUserData]);
 
     // If user ID is invalid, redirect to users page
     useEffect(() => {

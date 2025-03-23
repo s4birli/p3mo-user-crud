@@ -17,8 +17,8 @@ interface ApiResponse<T> {
 
 interface ApiMethods {
     get: <T>(url: string, config?: AxiosRequestConfig) => Promise<T>;
-    post: <T>(url: string, data?: any, config?: AxiosRequestConfig) => Promise<T>;
-    put: <T>(url: string, data?: any, config?: AxiosRequestConfig) => Promise<T>;
+    post: <T>(url: string, data?: unknown, config?: AxiosRequestConfig) => Promise<T>;
+    put: <T>(url: string, data?: unknown, config?: AxiosRequestConfig) => Promise<T>;
     delete: <T>(url: string, config?: AxiosRequestConfig) => Promise<T>;
     upload: <T>(url: string, formData: FormData, config?: AxiosRequestConfig) => Promise<T>;
 }
@@ -56,10 +56,10 @@ export function useApi<T>(): [ApiResponse<T>, ApiMethods] {
         get: useCallback(<R>(url: string, config?: AxiosRequestConfig) =>
             handleRequest<R>(() => api.get<R>(url, config)), [handleRequest]),
 
-        post: useCallback(<R>(url: string, data?: any, config?: AxiosRequestConfig) =>
+        post: useCallback(<R>(url: string, data?: unknown, config?: AxiosRequestConfig) =>
             handleRequest<R>(() => api.post<R>(url, data, config)), [handleRequest]),
 
-        put: useCallback(<R>(url: string, data?: any, config?: AxiosRequestConfig) =>
+        put: useCallback(<R>(url: string, data?: unknown, config?: AxiosRequestConfig) =>
             handleRequest<R>(() => api.put<R>(url, data, config)), [handleRequest]),
 
         delete: useCallback(<R>(url: string, config?: AxiosRequestConfig) =>

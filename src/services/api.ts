@@ -13,7 +13,7 @@ const api = axios.create({
 });
 
 // Prepare UserFormData for backend
-const prepareUserForSubmission = (userData: UserFormData): any => {
+const prepareUserForSubmission = (userData: UserFormData): Record<string, unknown> => {
   return {
     email: userData.email,
     isActive: userData.isActive,
@@ -50,7 +50,7 @@ export const userService = {
   // Update user
   updateUser: async (id: number, userData: Partial<UserFormData>): Promise<User> => {
     // Create partial update data
-    const updateData: any = {};
+    const updateData: Record<string, unknown> = {};
     
     if (userData.email !== undefined) updateData.email = userData.email;
     if (userData.isActive !== undefined) updateData.isActive = userData.isActive;
@@ -157,15 +157,19 @@ export const statsService = {
         roleDistribution: roleCounts,
         monthlyRegistrations: monthlyRegs,
       };
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     } catch (error) {
       throw error;
     }
   }
 };
 
-export default {
+// Create an API object with all services
+const apiServices = {
   user: userService,
   role: roleService,
   pdf: pdfService,
   stats: statsService,
-}; 
+};
+
+export default apiServices; 

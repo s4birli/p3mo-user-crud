@@ -65,7 +65,7 @@ export default function MonthlyRegistrationsChart({ monthlyRegistrations }: Mont
             type: 'line',
             data: counts,
             color: '#6366f1' // Indigo
-        } as any]
+        } as Highcharts.SeriesOptionsType]
     };
 
     // Update chart on window resize

@@ -12,7 +12,7 @@ import {
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Trash2, User as UserIcon } from 'lucide-react';
+import { Trash2 } from 'lucide-react';
 
 interface UserTableProps {
     users: User[];
@@ -50,8 +50,8 @@ export default function UserTable({ users, onDeleteUser }: UserTableProps) {
         const key = sortConfig.key;
 
         // Handle undefined values with sensible defaults
-        let aValue: any = a[key] ?? '';
-        let bValue: any = b[key] ?? '';
+        let aValue: string | number | boolean = a[key] ?? '';
+        let bValue: string | number | boolean = b[key] ?? '';
 
         // Handle string comparison
         if (typeof aValue === 'string' && typeof bValue === 'string') {

@@ -22,8 +22,10 @@ export default function UsersPage() {
             setHasError(false);
             const usersData = await userService.getAllUsers();
             setUsers(usersData);
+        // eslint-disable-next-line @typescript-eslint/no-unused-vars
         } catch (error) {
             toast.error("Failed to load users. Please try refreshing the page.");
+            setHasError(true);
         } finally {
             setIsLoadingUsers(false);
         }
@@ -49,6 +51,7 @@ export default function UsersPage() {
             // Remove user from state
             setUsers(prevUsers => prevUsers.filter(user => user.id !== id));
             toast.success("User deleted successfully");
+        // eslint-disable-next-line @typescript-eslint/no-unused-vars
         } catch (error) {
             toast.error("Failed to delete user. Please try again.");
         }
@@ -86,7 +89,6 @@ export default function UsersPage() {
                 ) : (
                     <UserTable 
                         users={users} 
-                        isLoading={false}
                         onDeleteUser={handleUserDeleted}
                     />
                 )}
